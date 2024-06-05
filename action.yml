@@ -9,12 +9,11 @@ branding:
 inputs:
   template-path:
     description: 'Path or glob expression to templates. File names should be unique across directories.'
-    required: false
     default: '.github/issues/**/*.md'
 
   follow-symbolic-links:
     description: 'Indicates whether to follow symbolic links when globbing templates'
-    required: true
+    default: true
 
 outputs:
   issues:
