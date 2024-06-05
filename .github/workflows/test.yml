@@ -1,0 +1,28 @@
+name: Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+            node-version: 20
+            cache: npm
+
+      - name: Install dependencies and build action
+        run: npm ci --production && npm run build
+
+      - name: Test Action
+        uses: ./
+

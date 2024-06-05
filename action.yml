@@ -1,23 +1,20 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Create Issues'
+description: 'Creates new issues from a glob of markdown templates with frontmatter, optionally adding them to projects.'
+author: '@jayalfredprufrock'
 
-# Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: alert-circle
+  color: blue
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
-    required: true
-    default: '1000'
+  templatePath:
+    description: 'Path or glob expression to templates. File names should be unique across directories.'
+    required: false
+    default: '.github/issues/**/*.md'
 
-# Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  issues:
+    description: 'Map of template names (excluding file extension) containing issue/project info.'
 
 runs:
   using: node20
