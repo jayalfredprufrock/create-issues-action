@@ -1,4 +1,4 @@
-name: Test
+name: Test Action
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
             cache: npm
 
       - name: Install dependencies and build action
-        run: npm ci --production && npm run build
+        run: npm ci --omit=dev && npm run build
 
       - name: Test Action
         uses: ./
