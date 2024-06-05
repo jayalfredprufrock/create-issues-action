@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
-    name: Deploy
+  test-action:
+    name: Test Action
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +23,6 @@ jobs:
       - name: Install dependencies and build action
         run: npm ci --omit=dev && npm run build
 
-      - name: Test Action
+      - name: Create/Update Test Issues
         uses: ./
 

@@ -1,7 +1,11 @@
-import * as core from '@actions/core'
+import * as core from '@actions/core';
+import * as glob from '@actions/glob';
 
 
-const templatePath: string = core.getInput('templatePath')
+const templatePath = core.getInput('template-path');
+const followSymbolicLinks = core.getBooleanInput('follow-symbolic-links');
 
+const globber = await glob.create(templatePath, { followSymbolicLinks });
+const templates = await globber.glob();
 
-core.info(`Template path ${templatePath}`);
+core.info(`Templates ${templates.join(',')}`);
