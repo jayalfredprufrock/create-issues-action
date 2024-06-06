@@ -27,6 +27,5 @@ jobs:
 
       - name: Create/Update Test Issues
         uses: ./
-        with:
-          github-secret: ${{ secrets.GITHUB_TOKEN }}
+
 

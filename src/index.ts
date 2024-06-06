@@ -27,7 +27,7 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
 
     const issue = await octokit.rest.issues.create({
         ...github.context.repo,
-        title: issueData.title ?? titleCase(path.basename(templateFile)),
+        title: issueData.title ?? titleCase(path.parse(templateFile).name),
         labels: issueData.labels,
         assignees: issueData.assignees,
         body
