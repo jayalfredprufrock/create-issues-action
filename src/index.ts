@@ -47,6 +47,8 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             fields: objValueMap(issueData.projectFields ?? {}, (_, key) => titleCase(key))
         });
 
+        console.log(issueData.projectFields);
+
         const projectItem = await ghProjectsApi.items.add(issue.node_id, issueData.projectFields);
     }
 }
