@@ -5,7 +5,7 @@ import GhProjectsApi from "github-project";
 import yaml from "js-yaml";
 import fs from 'fs/promises';
 import path from 'path';
-import { titleCase } from './util.js';
+import { titleCase, stripDelims } from './util.js';
 
 
 const templatePath = core.getInput('template-path');
@@ -19,6 +19,7 @@ const templateFiles = await globber.glob();
 const octokit = github.getOctokit(githubToken);
 
 const frontmatterRegex = /^\s*-{3,}\s*$/m;
+const delimRegex = /[\s-_]+/g;
 
 export const processTemplateFile = async (templateFile: string): Promise<void> => {
     const templateData = await fs.readFile(templateFile, { encoding: 'utf-8'});
@@ -45,7 +46,10 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             number: parseInt(projectNumber),
             token: githubToken,
             matchFieldName: (projectFieldName, userFieldName) => {
-                return projectFieldName.replaceAll(/\s|-|_/g, '') === userFieldName;
+                return stripDelims(projectFieldName) === stripDelims(userFieldName);
+            },
+            matchFieldOptionValue: (fieldOptionsValue, userValue) => {
+                return stripDelims(fieldOptionsValue).toLowerCase() === stripDelims(userValue).toLowerCase();
             }
         });
 
