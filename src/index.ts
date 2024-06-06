@@ -44,7 +44,7 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             owner: github.context.repo.owner,
             number: parseInt(projectNumber),
             token: githubToken,
-            fields: objValueMap(issueData.projectFields ?? {}, (_, key) => titleCase(key))
+            fields: objValueMap(issueData.projectFields ?? {}, (_, key) => titleCase(key)),
         });
 
         console.log(issueData.projectFields);

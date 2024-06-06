@@ -7,7 +7,7 @@ projectNumber: 1
 projectFields:
     status: Todo
     size: XS
-    startDate: "@today"
+    startDate: 2024-06-06T14:26:47.315Z
 ---
 
 This is an issue with frontmatter
