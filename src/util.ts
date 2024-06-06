@@ -14,3 +14,9 @@ export const objValueMap = <V, T>(obj: Record<string, V>, transformer: (value: V
         return o;
     }, {} as Record<string, T>);
 };
+
+export const addDaysToDate = (date: Date, days: number) => {
+    var result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+}

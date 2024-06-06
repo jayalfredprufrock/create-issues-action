@@ -5,7 +5,7 @@ import GhProjectsApi from "github-project";
 import yaml from "js-yaml";
 import fs from 'fs/promises';
 import path from 'path';
-import { titleCase, objValueMap } from './util.js';
+import { titleCase, objValueMap, addDaysToDate } from './util.js';
 
 
 const templatePath = core.getInput('template-path');
@@ -19,6 +19,7 @@ const templateFiles = await globber.glob();
 const octokit = github.getOctokit(githubToken);
 
 const frontmatterRegex = /^\s*-{3,}\s*$/m;
+const dateExpRegex = /^@today([\+\-]\d+)?$/i
 
 export const processTemplateFile = async (templateFile: string): Promise<void> => {
     const templateData = await fs.readFile(templateFile, { encoding: 'utf-8'});
@@ -48,11 +49,13 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
         });
 
         const projectFields = objValueMap(issueData.projectFields ?? {}, (val) => {
-            if (val === '@today') {
-                return new Date().toISOString();
+            const trimmedVal = String(val).trim();
+            const dateExpMatches = dateExpRegex.exec(trimmedVal);
+            if (dateExpMatches) {
+                const dayAdjustment = parseInt(dateExpMatches[2]) ?? 0;
+                return addDaysToDate(new Date(), dayAdjustment).toISOString();
             }
-
-            return String(val);
+            return trimmedVal;
         })
 
         console.log(issueData.projectFields);
