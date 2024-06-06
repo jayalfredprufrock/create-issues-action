@@ -11,6 +11,9 @@ import { titleCase, objValueMap, addDaysToDate } from './util.js';
 const templatePath = core.getInput('template-path');
 const followSymbolicLinks = core.getBooleanInput('follow-symbolic-links');
 const githubToken = core.getInput('github-token') ?? process.env.GITHUB_TOKEN ?? '';
+
+const projectGithubToken = core.getInput('project-github-token') ?? githubToken;
+const projectOwnerDefault = core.getInput('project-owner') ?? github.context.repo.owner;
 const projectNumberDefault = core.getInput('project-number');
 
 const globber = await glob.create(templatePath, { followSymbolicLinks });
@@ -21,8 +24,11 @@ const octokit = github.getOctokit(githubToken);
 const frontmatterRegex = /^\s*-{3,}\s*$/m;
 const dateExpRegex = /^@today([\+\-]\d+)?$/i
 
-export const processTemplateFile = async (templateFile: string): Promise<void> => {
+const output: Record<string, { issueUrl: string; issueNumber: number; issueNodeId: string; projectNodeId?: string }> = {};
+
+const processTemplateFile = async (templateFile: string): Promise<void> => {
     const templateData = await fs.readFile(templateFile, { encoding: 'utf-8'});
+    const templateName = path.parse(templateFile).name;
 
     const [maybeBody, yamlData, body = maybeBody] = templateData.split(frontmatterRegex, 3);
 
@@ -30,21 +36,28 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
     
     const { data: issue } = await octokit.rest.issues.create({
         ...github.context.repo,
-        title: issueData.title ?? titleCase(path.parse(templateFile).name),
+        title: issueData.title ?? titleCase(templateName),
         labels: issueData.labels,
         assignees: issueData.assignees,
         milestone: issueData.milestone,
         body
     });
+
+    output[templateName] = {
+        issueUrl: issue.url,
+        issueNumber: issue.number,
+        issueNodeId: issue.node_id
+    };
     
-    const projectNumber = projectNumberDefault ?? issueData.projectNumber;
+    const projectNumber = issueData.projectNumber ?? projectNumberDefault;
+    const projectOwner = issueData.projectOwner ?? projectOwnerDefault;
 
     if (projectNumber) {
         const ghProjectsApi = new GhProjectsApi({
             octokit: octokit as any,
-            owner: github.context.repo.owner,
+            owner: projectOwner,
             number: parseInt(projectNumber),
-            token: githubToken,
+            token: projectGithubToken,
             fields: objValueMap(issueData.projectFields ?? {}, (_, key) => titleCase(key)),
         });
 
@@ -58,10 +71,11 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             return trimmedVal;
         })
 
-        console.log(issueData.projectFields);
-
         const projectItem = await ghProjectsApi.items.add(issue.node_id, projectFields);
+        output[templateName].projectNodeId = projectItem.id;
     }
 }
 
 await Promise.all(templateFiles.map(templateFile => processTemplateFile(templateFile)));
+
+core.setOutput('issues', output);

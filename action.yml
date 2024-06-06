@@ -19,6 +19,15 @@ inputs:
     description: GitHub token or PAT with permissions to create issues and projects in the specified repos
     default: ${{ github.token }}
 
+  project-owner:
+    description: The owner of the project if different than the context repo.
+
+  project-number:
+    description: The number of the project (found in the url) if the issue should be added to the project.
+
+  project-github-token:
+    description: GitHub PAT token to use when adding issues to projects. Will use 'github-token' input if not present.
+
 outputs:
   issues:
     description: Map of template names (excluding file extension) containing issue/project info.
