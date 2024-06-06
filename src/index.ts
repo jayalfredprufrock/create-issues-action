@@ -44,6 +44,9 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             owner: github.context.repo.owner,
             number: parseInt(projectNumber),
             token: githubToken,
+            matchFieldName: (projectFieldName, userFieldName) => {
+                return projectFieldName.replaceAll(/\s|-|_/, '') === userFieldName;
+            }
         });
 
         const projectItem = await ghProjectsApi.items.add(issue.node_id, issueData.projectFields);
