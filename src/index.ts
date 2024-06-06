@@ -43,10 +43,10 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             octokit: octokit as any,
             owner: github.context.repo.owner,
             number: parseInt(projectNumber),
-            token: githubToken
+            token: githubToken,
         });
 
-        const projectItem = await ghProjectsApi.items.add(issue.node_id);
+        const projectItem = await ghProjectsApi.items.add(issue.node_id, issueData.projectFields);
     }
 }
 
