@@ -38,6 +38,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.14.0",
     "@vercel/ncc": "^0.38.1",
+    "github-project": "^5.4.1",
     "js-yaml": "^4.1.0",
     "typescript": "^5.4.5"
   },
