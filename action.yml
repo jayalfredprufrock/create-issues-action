@@ -1,5 +1,5 @@
-name: 'Create Issues'
-description: 'Creates new issues from a glob of markdown templates with frontmatter, optionally adding them to projects.'
+name: Create Issues
+description: Creates new issues from a glob of markdown templates with frontmatter, optionally adding them to projects.
 author: '@jayalfredprufrock'
 
 branding:
@@ -8,16 +8,16 @@ branding:
 
 inputs:
   template-path:
-    description: 'Path or glob expression to templates. File names should be unique across directories.'
-    default: '.github/issues/**/*.md'
+    description: Path or glob expression to templates. File names should be unique across directories.
+    default: .github/issues/**/*.md
 
   follow-symbolic-links:
-    description: 'Indicates whether to follow symbolic links when globbing templates'
+    description: Indicates whether to follow symbolic links when globbing templates
     default: true
 
 outputs:
   issues:
-    description: 'Map of template names (excluding file extension) containing issue/project info.'
+    description: Map of template names (excluding file extension) containing issue/project info.
 
 runs:
   using: node20
