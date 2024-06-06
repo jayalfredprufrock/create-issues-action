@@ -8,7 +8,7 @@ projectFields:
     status: Todo
     estimate: 1
     size: XS
-    startDate: @today
+    startDate: "@today"
 ---
 
 This is an issue with frontmatter
