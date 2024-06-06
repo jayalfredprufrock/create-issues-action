@@ -52,7 +52,7 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             const trimmedVal = String(val).trim();
             const dateExpMatches = dateExpRegex.exec(trimmedVal);
             if (dateExpMatches) {
-                const dayAdjustment = parseInt(dateExpMatches[2]) ?? 0;
+                const dayAdjustment = parseInt(dateExpMatches[1] ?? 0) ;
                 return addDaysToDate(new Date(), dayAdjustment).toISOString();
             }
             return trimmedVal;
