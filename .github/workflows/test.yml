@@ -28,7 +28,7 @@ jobs:
       - name: Create/Update Test Issues
         uses: ./
         with:
-          github-token: ${{ secrets.GH_TOKEN_PROJECT_WRITE }}
+          project-github-token: ${{ secrets.GH_TOKEN_PROJECT_WRITE }}
           project-number: 1
 
 
