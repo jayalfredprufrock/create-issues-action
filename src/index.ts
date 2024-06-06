@@ -44,7 +44,7 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             owner: github.context.repo.owner,
             number: parseInt(projectNumber),
             token: githubToken,
-            fields: objValueMap(issueData.projectFields ?? {}, (val: string) => titleCase(val))
+            fields: issueData.projectFields ? objValueMap(issueData.projectFields, (val: string) => titleCase(val)) : undefined
         });
 
         const projectItem = await ghProjectsApi.items.add(issue.node_id, issueData.projectFields);
