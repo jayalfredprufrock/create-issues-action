@@ -54,7 +54,6 @@ const processTemplateFile = async (templateFile: string): Promise<void> => {
 
     if (projectNumber) {
         const ghProjectsApi = new GhProjectsApi({
-            octokit: octokit as any,
             owner: projectOwner,
             number: parseInt(projectNumber),
             token: projectGithubToken,
