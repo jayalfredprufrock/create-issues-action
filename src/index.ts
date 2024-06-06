@@ -10,10 +10,10 @@ import { titleCase, objValueMap, addDaysToDate } from './util.js';
 
 const templatePath = core.getInput('template-path');
 const followSymbolicLinks = core.getBooleanInput('follow-symbolic-links');
-const githubToken = core.getInput('github-token') ?? process.env.GITHUB_TOKEN ?? '';
+const githubToken = core.getInput('github-token') || process.env.GITHUB_TOKEN || '';
 
-const projectGithubToken = core.getInput('project-github-token') ?? githubToken;
-const projectOwnerDefault = core.getInput('project-owner') ?? github.context.repo.owner;
+const projectGithubToken = core.getInput('project-github-token') || githubToken;
+const projectOwnerDefault = core.getInput('project-owner') || github.context.repo.owner;
 const projectNumberDefault = core.getInput('project-number');
 
 const globber = await glob.create(templatePath, { followSymbolicLinks });
