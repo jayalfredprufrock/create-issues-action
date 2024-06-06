@@ -45,7 +45,7 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             number: parseInt(projectNumber),
             token: githubToken,
             matchFieldName: (projectFieldName, userFieldName) => {
-                return projectFieldName.replaceAll(/\s|-|_/, '') === userFieldName;
+                return projectFieldName.replaceAll(/\s|-|_/g, '') === userFieldName;
             }
         });
 
