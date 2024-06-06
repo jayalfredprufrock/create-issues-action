@@ -51,12 +51,13 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             if (val === '@today') {
                 return new Date().toISOString();
             }
-            return val;
+
+            return String(val);
         })
 
         console.log(issueData.projectFields);
 
-        const projectItem = await ghProjectsApi.items.add(issue.node_id, issueData.projectFields);
+        const projectItem = await ghProjectsApi.items.add(issue.node_id, projectFields);
     }
 }
 
