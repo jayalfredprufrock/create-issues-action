@@ -8,7 +8,9 @@ export const titleCase = (str: string): string => {
         .join(' ');
 }
 
-const delimRegex = /[\s_\-]+/g;
-export const stripDelims = (str: string): string => {
-    return str.replaceAll(delimRegex, '');
-}
+export const objValueMap = <V, T>(obj: Record<string, V>, transformer: (value: V, key: string) => T): Record<string, T> => {
+    return Object.entries(obj).reduce((o, [key, value]) => {
+        o[key] = transformer(value, key);
+        return o;
+    }, {} as Record<string, T>);
+};
