@@ -17,9 +17,9 @@ const frontmatterRegex = /^\s*-{3,}\s*$/m;
 export const processTemplateFile = async (templateFile: string): Promise<void> => {
     const templateData = await fs.readFile(templateFile, { encoding: 'utf-8'});
 
-    const [maybeBody, yamlData = '', body = maybeBody] = templateData.split(frontmatterRegex, 3);
+    const [maybeBody, yamlData, body = maybeBody] = templateData.split(frontmatterRegex, 3);
 
-    const templateOverrides = yaml.load(yamlData);
+    const templateOverrides = yamlData ? yaml.load(yamlData) : {};
     
     console.log('overrides', templateOverrides);
     console.log('body', body);
