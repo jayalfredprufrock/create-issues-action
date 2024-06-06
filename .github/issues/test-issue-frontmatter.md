@@ -6,7 +6,7 @@ assignees:
 projectNumber: 1
 projectFields:
     status: Todo
-    estimate: "1"
+    estimate: 1
     size: XS
     startDate: "@today"
 ---
