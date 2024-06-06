@@ -47,6 +47,13 @@ export const processTemplateFile = async (templateFile: string): Promise<void> =
             fields: objValueMap(issueData.projectFields ?? {}, (_, key) => titleCase(key)),
         });
 
+        const projectFields = objValueMap(issueData.projectFields ?? {}, (val) => {
+            if (val === '@today') {
+                return new Date().toISOString();
+            }
+            return val;
+        })
+
         console.log(issueData.projectFields);
 
         const projectItem = await ghProjectsApi.items.add(issue.node_id, issueData.projectFields);

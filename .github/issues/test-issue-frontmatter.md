@@ -6,8 +6,9 @@ assignees:
 projectNumber: 1
 projectFields:
     status: Todo
+    estimate: "1"
     size: XS
-    startDate: "2024-06-06T14:26:47.315Z"
+    startDate: "@today"
 ---
 
 This is an issue with frontmatter
