@@ -15,6 +15,10 @@ inputs:
     description: Indicates whether to follow symbolic links when globbing templates
     default: true
 
+  github-token:
+    description: GitHub token or PAT with permissions to create issues and projects in the specified repos
+    default: ${{ secrets.GITHUB_TOKEN }}
+
 outputs:
   issues:
     description: Map of template names (excluding file extension) containing issue/project info.
