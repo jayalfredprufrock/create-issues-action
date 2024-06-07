@@ -72,6 +72,9 @@ projectFields:
 Call client to discuss design direction.
 ```
 
+> The special variable `@today` can be used to create an ISO date string, optionally offset by a number days.
+> (i.e. `@today-2`)
+
 ## Inputs
 <!--(inputs-start)-->
 <!--(inputs-end)-->

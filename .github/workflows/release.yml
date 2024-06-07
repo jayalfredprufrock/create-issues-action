@@ -16,6 +16,12 @@ jobs:
       pull-requests: write
 
     steps:
+
+      - name: Install yq util
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: yq
+
       - name: Checkout source
         uses: actions/checkout@v4
 
