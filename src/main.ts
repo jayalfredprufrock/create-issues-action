@@ -6,7 +6,7 @@ import GhProjectsApi from "github-project";
 import yaml from "js-yaml";
 import fs from 'fs/promises';
 import path from 'path';
-import { titleCase, objValueMap, addDaysToDate } from './util.js';
+import { titleCase, objValueMap, addDaysToDate, getRepoIssueTitles } from './util.js';
 
 export const run = async () => {
 
@@ -40,6 +40,8 @@ export const run = async () => {
         'project-number'?: number 
     }> = {};
 
+    const existingIssueTitlePromisesByRepo = new Map<string, Promise<Set<string>>>(); 
+
     const processTemplateFile = async (templateFile: string): Promise<void> => {
         const templateData = await fs.readFile(templateFile, { encoding: 'utf-8'});
         const templateName = path.parse(templateFile).name;
@@ -50,11 +52,25 @@ export const run = async () => {
 
         const issueOwner = issueData.owner ?? owner;
         const issueRepo = issueData.repo ?? repo;
+        const issueTitle = issueData.title ?? titleCase(templateName);
+
+        let existingIssueTitlesPromise = existingIssueTitlePromisesByRepo.get(`${issueOwner}/${issueRepo}`);
+
+        if (!existingIssueTitlesPromise) {
+            existingIssueTitlesPromise = getRepoIssueTitles({ octokit, owner: issueOwner, repo: issueRepo, state: 'open' });
+            existingIssueTitlePromisesByRepo.set(`${issueOwner}/${issueRepo}`, existingIssueTitlesPromise);
+        }
+
+        const existingIssueTitles = await existingIssueTitlesPromise;
+
+        if (existingIssueTitles.has(issueTitle)) {
+            return;
+        }
         
         const { data: issue } = await octokit.rest.issues.create({
             owner: issueOwner,
             repo: issueRepo,
-            title: issueData.title ?? titleCase(templateName),
+            title: issueTitle,
             labels: issueData.labels,
             assignees: issueData.assignees,
             milestone: issueData.milestone,

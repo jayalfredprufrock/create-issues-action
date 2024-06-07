@@ -47,7 +47,7 @@ outputs:
     description: |
       Map of template names (excluding file extension) containing issue/project info. Use fromJSON to parse output string.
 
-      e.g. `echo ${{ fromJSON(steps.create-issues.outputs.issues)[0].issue-node-id }}`
+      e.g. fromJSON(steps.create-issues.outputs.issues)['template-name'].issue-node-id
 
       Available fields: `issue-url`, `issue-node-id`, `issue-number`, `issue-owner`, `issue-repo`, `project-item-id`, `project-owner`, `project-number`
 

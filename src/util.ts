@@ -1,3 +1,5 @@
+import * as github from '@actions/github';
+
 export const titleCase = (str: string): string => {
     return str
         .trim()
@@ -20,3 +22,20 @@ export const addDaysToDate = (date: Date, days: number) => {
     result.setDate(result.getDate() + days);
     return result;
 }
+
+export type Issue = {
+    title: string;
+}
+
+export const getRepoIssueTitles = async (options: { octokit: ReturnType<typeof github.getOctokit>, owner: string, repo: string, state: 'open' | 'closed' | 'all' }): Promise<Set<string>> => {
+    const { octokit, ...getOptions } = options;
+    const issueTitles = new Set<string>();
+    const issuePaginator = octokit.paginate.iterator(octokit.rest.issues.listForRepo, { ...getOptions, per_page: 100 });
+    for await (const response of issuePaginator) {
+        response.data.forEach(issue => {
+            issueTitles.add(issue.title);
+        });
+    }
+    return issueTitles;
+}
+
