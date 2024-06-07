@@ -27,7 +27,7 @@ jobs:
         run: npm run build
 
       - name: Create/Update Test Issues
-        uses: ./
+        uses: ./index.cjs
         with:
           project-github-token: ${{ secrets.GH_TOKEN_PROJECT_WRITE }}
           project-number: 1
