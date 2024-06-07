@@ -1,7 +1,7 @@
 {
   "name": "create-issues-action",
   "description": "GitHub action that creates new issues from a glob of markdown templates with frontmatter, optionally adding them to projects.",
-  "version": "0.0.0",
+  "version": "1.1.1",
   "author": "Andrew Smiley",
   "private": true,
   "homepage": "https://github.com/jayalfredprufrock/create-issues-action",
