@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: jayalfredprufrock/create-issues@v1
+      - uses: jayalfredprufrock/create-issues-action@v1
 ```
 
 By default, any files matching the glob expression `.github/issues/**/*.md` will automatically create issues.
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: jayalfredprufrock/create-issues@v1
+      - uses: jayalfredprufrock/create-issues-action@v1
         with:
             project-number: 1
             project-github-token: ${{ secrets.GH_TOKEN_PROJECT_WRITE }}
