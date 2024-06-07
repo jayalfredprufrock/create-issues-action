@@ -80,14 +80,14 @@ Call client to discuss design direction.
 
 | Name  | Required | Default | Description |
 | :---: | :------: | :-----: | ----------- |
-| `template-path` |  | .github/issues/**/*.md | Path or glob expression to templates. File names should be unique across directories. |
-| `follow-symbolic-links` |  | true | Indicates whether to follow symbolic links when globbing templates. |
-| `owner` |  |  | The owner of the repo to create issues in if different than the context repo owner. Can be overridden in frontmatter with 'owner' |
-| `repo` |  |  | The the repo name to create issues in if different than the context repo. Can be overridden in frontmatter with 'repo' |
-| `github-token` |  | ${{ github.token }} | GitHub token or PAT with permissions to create issues and projects in the specified repos. |
-| `project-owner` |  |  | The owner of the project if different than the context repo owner. Can be overridden in frontmatter with 'projectOwner' |
-| `project-number` |  |  | The number of the project (found in the url) if the issue should be added to the project. Can be overridden in frontmatter with 'projectNumber' |
-| `project-github-token` |  |  | GitHub PAT token to use solely for adding issues to projects. Will use 'github-token' input if not present. |
+| `template-path` | false | .github/issues/**/*.md | Path or glob expression to templates. File names should be unique across directories. |
+| `follow-symbolic-links` | false | true | Indicates whether to follow symbolic links when globbing templates. |
+| `owner` | false |  | The owner of the repo to create issues in if different than the context repo owner. Can be overridden in frontmatter with 'owner' |
+| `repo` | false |  | The the repo name to create issues in if different than the context repo. Can be overridden in frontmatter with 'repo' |
+| `github-token` | false | ${{ github.token }} | GitHub token or PAT with permissions to create issues and projects in the specified repos. |
+| `project-owner` | false |  | The owner of the project if different than the context repo owner. Can be overridden in frontmatter with 'projectOwner' |
+| `project-number` | false |  | The number of the project (found in the url) if the issue should be added to the project. Can be overridden in frontmatter with 'projectNumber' |
+| `project-github-token` | false |  | GitHub PAT token to use solely for adding issues to projects. Will use 'github-token' input if not present. |
 
 <!--(inputs-end)-->
 
