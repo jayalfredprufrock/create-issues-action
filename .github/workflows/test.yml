@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup node
         uses: actions/setup-node@v4
@@ -22,8 +20,11 @@ jobs:
             node-version: 20
             cache: npm
 
-      - name: Install dependencies and build action
-        run: npm ci --omit=dev && npm run build
+      - name: Install dependencies
+        run: npm ci --omit=dev
+            
+      - name: Compile and bundle action
+        run: npm run build
 
       - name: Create/Update Test Issues
         uses: ./
