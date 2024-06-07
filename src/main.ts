@@ -30,14 +30,14 @@ export const run = async () => {
     const dateExpRegex = /^@today([\+\-]\d+)?$/i
 
     const output: Record<string, { 
-        issueOwner: string;
-        issueRepo: string;
-        issueUrl: string;
-        issueNumber: number;
-        issueNodeId: string;
-        projectItemNodeId?: string;
-        projectOwner?: string;
-        projectNumber?: number 
+        'issue-owner': string;
+        'issue-repo': string;
+        'issue-url': string;
+        'issue-number': number;
+        'issue-node-id': string;
+        'project-item-node-id'?: string;
+        'project-owner'?: string;
+        'project-number'?: number 
     }> = {};
 
     const processTemplateFile = async (templateFile: string): Promise<void> => {
@@ -62,11 +62,11 @@ export const run = async () => {
         });
 
         output[templateName] = {
-            issueRepo,
-            issueOwner,
-            issueUrl: issue.url,
-            issueNumber: issue.number,
-            issueNodeId: issue.node_id
+            'issue-repo': issueRepo,
+            'issue-owner': issueOwner,
+            'issue-url': issue.url,
+            'issue-number': issue.number,
+            'issue-node-id': issue.node_id
         };
         
         const projectNumber = issueData.projectNumber ?? projectNumberDefault;
@@ -92,7 +92,11 @@ export const run = async () => {
 
             const projectItem = await ghProjectsApi.items.add(issue.node_id, projectFields);
             
-            Object.assign(output[templateName], { projectItemNodeId: projectItem.id, projectOwner, projectNumber });
+            Object.assign(output[templateName], { 
+                'project-item-node-id': projectItem.id,
+                'project-owner': projectOwner,
+                'project-number': projectNumber 
+            });
         }
     }
 

@@ -24,9 +24,10 @@ Markdown files can include frontmatter to specify/override issue configuration.
 ```markdown
 ---
 title: Design Call
-assignees: jayalfredprufrock
-labels:
-    - design
+labels: ["design"]
+milestone: 1
+assignees: 
+  - jayalfredprufrock
 ---
 
 Call client to discuss design direction.
@@ -61,8 +62,9 @@ Within frontmatter, you can automatically set project item fields:
 ```markdown
 ---
 title: Design Call
-assignees: jayalfredprufrock
 labels: ["design"]
+assignees: 
+  - jayalfredprufrock
 projectFields:
     status: Todo
     startDate: @today
