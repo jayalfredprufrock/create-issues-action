@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "author": "Andrew Smiley",
   "private": true,
-  "type": "module",
   "homepage": "https://github.com/jayalfredprufrock/create-issues-action",
   "repository": {
     "type": "git",
@@ -28,7 +27,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npx esbuild ./src/index.ts --bundle --minify --platform=node --outfile=dist/index.cjs"
+    "build": "npx esbuild ./src/index.ts --bundle --minify --platform=node --outfile=dist/index.js"
   },
   "license": "MIT",
   "dependencies": {
