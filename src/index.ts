@@ -12,6 +12,9 @@ const templatePath = core.getInput('template-path');
 const followSymbolicLinks = core.getBooleanInput('follow-symbolic-links');
 const githubToken = core.getInput('github-token') || process.env.GITHUB_TOKEN || '';
 
+const owner = core.getInput('owner') || github.context.repo.owner;
+const repo = core.getInput('repo') || github.context.repo.repo;
+
 const projectGithubToken = core.getInput('project-github-token') || githubToken;
 const projectOwnerDefault = core.getInput('project-owner') || github.context.repo.owner;
 const projectNumberDefault = core.getInput('project-number');
@@ -24,7 +27,16 @@ const octokit = github.getOctokit(githubToken);
 const frontmatterRegex = /^\s*-{3,}\s*$/m;
 const dateExpRegex = /^@today([\+\-]\d+)?$/i
 
-const output: Record<string, { issueUrl: string; issueNumber: number; issueNodeId: string; projectNodeId?: string }> = {};
+const output: Record<string, { 
+    issueOwner: string;
+    issueRepo: string;
+    issueUrl: string;
+    issueNumber: number;
+    issueNodeId: string;
+    projectItemNodeId?: string;
+    projectOwner?: string;
+    projectNumber?: number 
+}> = {};
 
 const processTemplateFile = async (templateFile: string): Promise<void> => {
     const templateData = await fs.readFile(templateFile, { encoding: 'utf-8'});
@@ -33,9 +45,13 @@ const processTemplateFile = async (templateFile: string): Promise<void> => {
     const [maybeBody, yamlData, body = maybeBody] = templateData.split(frontmatterRegex, 3);
 
     const issueData = (yamlData ? yaml.load(yamlData) : {}) as Record<string, any>;
+
+    const issueOwner = issueData.owner ?? owner;
+    const issueRepo = issueData.repo ?? repo;
     
     const { data: issue } = await octokit.rest.issues.create({
-        ...github.context.repo,
+        owner: issueOwner,
+        repo: issueRepo,
         title: issueData.title ?? titleCase(templateName),
         labels: issueData.labels,
         assignees: issueData.assignees,
@@ -44,6 +60,8 @@ const processTemplateFile = async (templateFile: string): Promise<void> => {
     });
 
     output[templateName] = {
+        issueRepo,
+        issueOwner,
         issueUrl: issue.url,
         issueNumber: issue.number,
         issueNodeId: issue.node_id
@@ -71,7 +89,8 @@ const processTemplateFile = async (templateFile: string): Promise<void> => {
         })
 
         const projectItem = await ghProjectsApi.items.add(issue.node_id, projectFields);
-        output[templateName].projectNodeId = projectItem.id;
+        
+        Object.assign(output[templateName], { projectItemNodeId: projectItem.id, projectOwner, projectNumber });
     }
 }
 

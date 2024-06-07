@@ -12,25 +12,31 @@ inputs:
     default: .github/issues/**/*.md
 
   follow-symbolic-links:
-    description: Indicates whether to follow symbolic links when globbing templates
+    description: Indicates whether to follow symbolic links when globbing templates.
     default: true
 
+  owner:
+    description: The owner of the repo to create issues in if different than the context repo owner. Can be overridden in frontmatter with 'owner'
+
+  repo:
+    description: The the repo name to create issues in if different than the context repo. Can be overridden in frontmatter with 'repo'
+
   github-token:
-    description: GitHub token or PAT with permissions to create issues and projects in the specified repos
+    description: GitHub token or PAT with permissions to create issues and projects in the specified repos.
     default: ${{ github.token }}
 
   project-owner:
-    description: The owner of the project if different than the context repo.
+    description: The owner of the project if different than the context repo owner. Can be overridden in frontmatter with 'projectOwner'
 
   project-number:
-    description: The number of the project (found in the url) if the issue should be added to the project.
+    description: The number of the project (found in the url) if the issue should be added to the project. Can be overridden in frontmatter with 'projectNumber'
 
   project-github-token:
-    description: GitHub PAT token to use when adding issues to projects. Will use 'github-token' input if not present.
+    description: GitHub PAT token to use solely for adding issues to projects. Will use 'github-token' input if not present.
 
 outputs:
   issues:
-    description: Map of template names (excluding file extension) containing issue/project info.
+    description: Map of template names (excluding file extension) containing issue/project info. Use fromJSON to parse output string. }})
 
 runs:
   using: node20
