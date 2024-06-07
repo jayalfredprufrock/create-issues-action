@@ -22,13 +22,13 @@
     "github"
   ],
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.cjs"
   },
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "build": "npx esbuild ./src/index.ts --bundle --minify --platform=node --outdir=dist"
+    "build": "npx esbuild ./src/index.ts --bundle --minify --platform=node --outfile=dist/index.cjs"
   },
   "license": "MIT",
   "dependencies": {
