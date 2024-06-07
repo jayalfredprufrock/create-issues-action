@@ -20,9 +20,6 @@
     "workflow",
     "github"
   ],
-  "exports": {
-    ".": "./dist/index.cjs"
-  },
   "engines": {
     "node": ">=20"
   },
