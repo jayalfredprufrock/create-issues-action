@@ -31,6 +31,9 @@ jobs:
       - name: Compile and bundle action
         run: npm run build
 
+      - name: Update README.md
+        uses: mdvorak/update-action-readme@v1
+
       - name: Tag and release
         run: npx -p @semantic-release/git -p semantic-release-major-tag -p semantic-release semantic-release
         env:
