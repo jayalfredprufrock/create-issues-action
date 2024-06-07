@@ -28,7 +28,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npx esbuild ./src/index.ts --bundle --minify --platform=node --format=esm --outdir=dist"
+    "build": "npx esbuild ./src/index.ts --bundle --minify --platform=node --outdir=dist"
   },
   "license": "MIT",
   "dependencies": {
