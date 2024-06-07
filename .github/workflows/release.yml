@@ -29,6 +29,6 @@ jobs:
         run: npm run build
 
       - name: Tag and release
-        run: npx semantic-release
+        run: npx -p @semantic-release/git -p semantic-release semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
