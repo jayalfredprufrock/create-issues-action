@@ -131,11 +131,11 @@ Call client to discuss design direction.
 | `group` | false |  | When set, issue will not be created until all issues with a smaller group number have been closed out. Can be overridden in frontmatter with `group` |
 | `labels` | false |  | Comma separated list of labels to add to created issues. Will be merged with any labels specified in frontmatter with `labels`. |
 | `assignees` | false |  | Comma separated list of assignees to add to created issues. Will be merged with any assignees specified in frontmatter with `assignees`. |
-| `project-fields` | false |  | Stringified JSON object of fields/values to add to project items. Will be merged with any fields specified in frontmatter with `projectFields`. |
 | `milestone` | false |  | Milestone number to associate with created issues. Can be overridden in frontmatter with `milestone`. |
 | `github-token` | false | ${{ github.token }} | GitHub token or PAT with permissions to create issues and projects in the specified repos. |
 | `project-owner` | false |  | The owner of the project if different than the context repo owner. Can be overridden in frontmatter with `projectOwner` |
 | `project-number` | false |  | The number of the project (found in the url) if the issue should be added to the project. Can be overridden in frontmatter with `projectNumber` |
+| `project-fields` | false |  | Stringified JSON object of fields/values to add to project items. Will be merged with any fields specified in frontmatter with `projectFields`. |
 | `project-github-token` | false |  | GitHub PAT token to use solely for adding issues to projects. Will use `github-token` input if not present. |
 
 <!--(inputs-end)-->
