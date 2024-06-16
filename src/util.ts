@@ -1,4 +1,7 @@
 import * as github from '@actions/github';
+import yaml from "js-yaml";
+import fs from 'fs/promises';
+import path from 'path';
 
 export const titleCase = (str: string): string => {
     return str
@@ -24,18 +27,68 @@ export const addDaysToDate = (date: Date, days: number) => {
 }
 
 export type Issue = {
+    repoOwner: string;
+    repoName: string;
     title: string;
+    state: string;
+    body: string;
+    labels: string[];
+    assignees: string[];
+    milestone?: number;
+
+    // below fields not actually part of GitHub issue data
+    // but part of the template
+    group?: number;
+    projectNumber?: string;
+    projectOwner?: string;
+    projectFields?: Record<string,  string | number | boolean>;
 }
 
-export const getRepoIssueTitles = async (options: { octokit: ReturnType<typeof github.getOctokit>, owner: string, repo: string, state: 'open' | 'closed' | 'all' }): Promise<Set<string>> => {
+
+export const getRepoIssuesByTitle = async (options: { octokit: ReturnType<typeof github.getOctokit>, owner: string, repo: string, state: 'open' | 'closed' | 'all' }): Promise<Map<string, Issue>> => {
     const { octokit, ...getOptions } = options;
-    const issueTitles = new Set<string>();
+    const issuesByTitle = new Map<string, Issue>();
     const issuePaginator = octokit.paginate.iterator(octokit.rest.issues.listForRepo, { ...getOptions, per_page: 100 });
     for await (const response of issuePaginator) {
         response.data.forEach(issue => {
-            issueTitles.add(issue.title);
+            issuesByTitle.set(issue.title, { 
+                repoOwner: issue.repository?.owner.name ?? '', 
+                repoName: issue.repository?.name ?? '',
+                title: issue.title, 
+                state: issue.state, 
+                labels: issue.labels.map(label => typeof label === 'string' ? label : label.name ?? ''),
+                assignees: issue.assignees?.map(assignnee => assignnee.name ?? '') ?? [],
+                milestone: issue.milestone?.number,
+                body: issue.body ?? ''
+            });
         });
     }
-    return issueTitles;
+    return issuesByTitle;
 }
+
+const frontmatterRegex = /^\s*-{3,}\s*$/m;
+
+export type TemplateDefaults = Pick<Issue, 'repoOwner' | 'repoName' | 'projectNumber' | 'projectOwner'>;
+
+export const parseTemplateFile = async (templateFile: string, defaults: TemplateDefaults) => {
+    const templateData = await fs.readFile(templateFile, { encoding: 'utf-8'});
+    const templateName = path.parse(templateFile).name;
+
+    const [maybeBody, yamlData, body = maybeBody] = templateData.split(frontmatterRegex, 3);
+
+    const issueFrontmatter = (yamlData ? yaml.load(yamlData) : {}) as Partial<Omit<Issue, 'state'>>;
+
+    return {
+        ...defaults,
+        templateName,
+        title: titleCase(templateName),
+        ...issueFrontmatter,
+        labels: [],
+        assignees: [],
+        group: 0,
+        body
+    }
+};
+
+export type Template = Awaited<ReturnType<typeof parseTemplateFile>>;
 

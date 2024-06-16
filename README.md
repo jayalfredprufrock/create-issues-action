@@ -33,6 +33,48 @@ assignees:
 Call client to discuss design direction.
 ```
 
+## Issue Groups
+Issue groups can be used to prevent creating issues until all issues with a smaller group number have been closed out.
+
+```yaml
+name: Seed issues
+on: 
+  - create
+  - issues:
+      types: [closed]
+
+if: github.event_name != 'create' || github.event.ref == github.event.master_branch
+permissions:
+    issues: write 
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jayalfredprufrock/create-issues-action@v1
+        with:
+          template: `.github/issues/design/*.md`
+```
+
+```markdown
+---
+title: Design Call
+group: 1
+---
+
+Call client to discuss design direction.
+```
+
+
+```markdown
+---
+title: Design Homepage
+group: 2
+---
+
+Build figma mock-up of homepage.
+```
+
 ## Creating Project Items
 It is also possible to associate project items after creating issues. Here is an example:
 

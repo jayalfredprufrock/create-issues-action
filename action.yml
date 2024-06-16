@@ -17,12 +17,12 @@ inputs:
     default: true
     required: false
 
-  owner:
-    description: The owner of the repo to create issues in if different than the context repo owner. Can be overridden in frontmatter with `owner`
+  repo-owner:
+    description: The owner of the repo to create issues in if different than the context repo owner. Can be overridden in frontmatter with `repoOwner`
     required: false
 
-  repo:
-    description: The the repo name to create issues in if different than the context repo. Can be overridden in frontmatter with `repo`
+  repo-name:
+    description: The the repo name to create issues in if different than the context repo. Can be overridden in frontmatter with `repoName`
     required: false
 
   github-token:
@@ -49,7 +49,7 @@ outputs:
 
       e.g. fromJSON(steps.create-issues.outputs.issues)['template-name'].issue-node-id
 
-      Available fields: `issue-url`, `issue-node-id`, `issue-number`, `issue-owner`, `issue-repo`, `project-item-id`, `project-owner`, `project-number`
+      Available fields: `issue-url`, `issue-node-id`, `issue-number`, `issue-repo`, `issue-repo-owner`, `issue-repo-name`, `project-item-id`, `project-owner`, `project-number`
 
 runs:
   using: node20

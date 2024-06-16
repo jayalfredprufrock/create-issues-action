@@ -3,10 +3,8 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as glob from '@actions/glob';
 import GhProjectsApi from "github-project";
-import yaml from "js-yaml";
-import fs from 'fs/promises';
-import path from 'path';
-import { titleCase, objValueMap, addDaysToDate, getRepoIssueTitles } from './util.js';
+
+import { titleCase, objValueMap, addDaysToDate, getRepoIssuesByTitle,  parseTemplateFile as parseTemplate, Template } from './util.js';
 
 export const run = async () => {
 
@@ -14,23 +12,27 @@ export const run = async () => {
     const followSymbolicLinks = core.getBooleanInput('follow-symbolic-links');
     const githubToken = core.getInput('github-token') || process.env.GITHUB_TOKEN || '';
 
-    const owner = core.getInput('owner') || github.context.repo.owner;
-    const repo = core.getInput('repo') || github.context.repo.repo;
+    const repoOwner = core.getInput('repo-owner') || github.context.repo.owner;
+    const repoName = core.getInput('repo-name') || github.context.repo.repo;
 
     const projectGithubToken = core.getInput('project-github-token') || githubToken;
     const projectOwnerDefault = core.getInput('project-owner') || github.context.repo.owner;
     const projectNumberDefault = core.getInput('project-number');
 
-    const globber = await glob.create(templatePath, { followSymbolicLinks });
-    const templateFiles = await globber.glob();
-
+    const templateDefaults = {
+        repoOwner,
+        repoName,
+        projectNumber: projectNumberDefault,
+        projectOwner: projectOwnerDefault 
+    };
+    
     const octokit = github.getOctokit(githubToken);
 
-    const frontmatterRegex = /^\s*-{3,}\s*$/m;
     const dateExpRegex = /^@today([\+\-]\d+)?$/i
 
     const output: Record<string, { 
-        'issue-owner': string;
+        'issue-repo-owner': string;
+        'issue-repo-name': string;
         'issue-repo': string;
         'issue-url': string;
         'issue-number': number;
@@ -40,83 +42,84 @@ export const run = async () => {
         'project-number'?: number 
     }> = {};
 
-    const existingIssueTitlePromisesByRepo = new Map<string, Promise<Set<string>>>(); 
 
-    const processTemplateFile = async (templateFile: string): Promise<void> => {
-        const templateData = await fs.readFile(templateFile, { encoding: 'utf-8'});
-        const templateName = path.parse(templateFile).name;
+    const globber = await glob.create(templatePath, { followSymbolicLinks });
+    const templateFiles = await globber.glob();
 
-        const [maybeBody, yamlData, body = maybeBody] = templateData.split(frontmatterRegex, 3);
+    const templatesByRepo = new Map<string, Template[]>();
 
-        const issueData = (yamlData ? yaml.load(yamlData) : {}) as Record<string, any>;
+    await Promise.all(
+        templateFiles.map(async (templateFile) => {
+            const template = await parseTemplate(templateFile, templateDefaults);
+            const repo = `${template.repoOwner}/${template.repoName}`;
+            const templates = templatesByRepo.get(repo);
+            if (templates) {
+                templates.push(template);
+            }
+            else {
+                templatesByRepo.set(repo, [template]);
+            }
+        })
+    );
 
-        const issueOwner = issueData.owner ?? owner;
-        const issueRepo = issueData.repo ?? repo;
-        const issueTitle = issueData.title ?? titleCase(templateName);
-
-        let existingIssueTitlesPromise = existingIssueTitlePromisesByRepo.get(`${issueOwner}/${issueRepo}`);
-
-        if (!existingIssueTitlesPromise) {
-            existingIssueTitlesPromise = getRepoIssueTitles({ octokit, owner: issueOwner, repo: issueRepo, state: 'open' });
-            existingIssueTitlePromisesByRepo.set(`${issueOwner}/${issueRepo}`, existingIssueTitlesPromise);
-        }
-
-        const existingIssueTitles = await existingIssueTitlesPromise;
-
-        if (existingIssueTitles.has(issueTitle)) {
-            return;
-        }
+    for (const [repo, templates] of templatesByRepo) {
+        const [repoOwner, repoName] = repo.split('/');
+        const existingIssuesByTitle = await getRepoIssuesByTitle({ octokit, owner: repoOwner, repo: repoName, state: 'all' });
         
-        const { data: issue } = await octokit.rest.issues.create({
-            owner: issueOwner,
-            repo: issueRepo,
-            title: issueTitle,
-            labels: issueData.labels,
-            assignees: issueData.assignees,
-            milestone: issueData.milestone,
-            body
-        });
+        const sortedTemplates = templates.sort((t1, t2) => t1.group - t2.group);
+        const lowestOpenGroup = sortedTemplates.find(template => existingIssuesByTitle.get(template.title)?.state === 'open')?.group ?? 0;
+        const templatesToProcess = sortedTemplates.filter(template => template.group <= lowestOpenGroup);
 
-        output[templateName] = {
-            'issue-repo': issueRepo,
-            'issue-owner': issueOwner,
-            'issue-url': issue.url,
-            'issue-number': issue.number,
-            'issue-node-id': issue.node_id
-        };
+        // might need to break this up into batches to avoid rate-limiting
+        await Promise.all(
+            templatesToProcess.map(async (template) => {
+                
+                const { repoOwner, repoName, projectNumber, projectOwner, projectFields, templateName, ...issueData } = template;
+
+                const { data: issue } = await octokit.rest.issues.create({
+                    owner: repoOwner,
+                    repo: repoName,
+                    ...issueData
+                });
+
+                output[templateName] = {
+                    'issue-repo': repo,
+                    'issue-repo-owner': repoOwner,
+                    'issue-repo-name': repoName,
+                    'issue-url': issue.url,
+                    'issue-number': issue.number,
+                    'issue-node-id': issue.node_id
+                };
+
+                if (projectNumber && projectOwner) {
+                    const ghProjectsApi = new GhProjectsApi({
+                        owner: projectOwner,
+                        number: parseInt(projectNumber),
+                        token: projectGithubToken,
+                        fields: objValueMap(projectFields ?? {}, (_, key) => titleCase(key)),
+                    });
         
-        const projectNumber = issueData.projectNumber ?? projectNumberDefault;
-        const projectOwner = issueData.projectOwner ?? projectOwnerDefault;
-
-        if (projectNumber) {
-            const ghProjectsApi = new GhProjectsApi({
-                owner: projectOwner,
-                number: parseInt(projectNumber),
-                token: projectGithubToken,
-                fields: objValueMap(issueData.projectFields ?? {}, (_, key) => titleCase(key)),
-            });
-
-            const projectFields = objValueMap(issueData.projectFields ?? {}, (val) => {
-                const trimmedVal = String(val).trim();
-                const dateExpMatches = dateExpRegex.exec(trimmedVal);
-                if (dateExpMatches) {
-                    const dayAdjustment = parseInt(dateExpMatches[1] ?? 0) ;
-                    return addDaysToDate(new Date(), dayAdjustment).toISOString();
+                    const processedProjectFields = objValueMap(projectFields ?? {}, (val) => {
+                        const trimmedVal = String(val).trim();
+                        const dateExpMatches = dateExpRegex.exec(trimmedVal);
+                        if (dateExpMatches) {
+                            const dayAdjustment = parseInt(dateExpMatches[1] ?? 0) ;
+                            return addDaysToDate(new Date(), dayAdjustment).toISOString();
+                        }
+                        return trimmedVal;
+                    })
+        
+                    const projectItem = await ghProjectsApi.items.add(issue.node_id, processedProjectFields);
+                    
+                    Object.assign(output[templateName], { 
+                        'project-item-node-id': projectItem.id,
+                        'project-owner': projectOwner,
+                        'project-number': projectNumber 
+                    });
                 }
-                return trimmedVal;
             })
-
-            const projectItem = await ghProjectsApi.items.add(issue.node_id, projectFields);
-            
-            Object.assign(output[templateName], { 
-                'project-item-node-id': projectItem.id,
-                'project-owner': projectOwner,
-                'project-number': projectNumber 
-            });
-        }
-    }
-
-    await Promise.all(templateFiles.map(templateFile => processTemplateFile(templateFile)));
+        );
+    }    
 
     core.setOutput('issues', output);
 }
