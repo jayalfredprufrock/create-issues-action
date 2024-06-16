@@ -37,10 +37,6 @@ inputs:
     description: Comma separated list of assignees to add to created issues. Will be merged with any assignees specified in frontmatter with `assignees`.
     required: false
 
-  project-fields:
-    description: Stringified JSON object of fields/values to add to project items. Will be merged with any fields specified in frontmatter with `projectFields`.
-    required: false
-
   milestone:
     description: Milestone number to associate with created issues. Can be overridden in frontmatter with `milestone`.
     required: false
@@ -56,6 +52,10 @@ inputs:
 
   project-number:
     description: The number of the project (found in the url) if the issue should be added to the project. Can be overridden in frontmatter with `projectNumber`
+    required: false
+
+  project-fields:
+    description: Stringified JSON object of fields/values to add to project items. Will be merged with any fields specified in frontmatter with `projectFields`.
     required: false
 
   project-github-token:
