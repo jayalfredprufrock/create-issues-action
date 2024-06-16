@@ -31,5 +31,8 @@ jobs:
         with:
           project-github-token: ${{ secrets.GH_TOKEN_PROJECT_WRITE }}
           project-number: 1
+          labels: test
+          assignees: jayalfredprufrock
+          project-fields: '{"status": "Todo"}'
 
 

@@ -4,26 +4,25 @@ import * as github from '@actions/github';
 import * as glob from '@actions/glob';
 import GhProjectsApi from "github-project";
 
-import { titleCase, objValueMap, addDaysToDate, getRepoIssuesByTitle,  parseTemplateFile as parseTemplate, Template } from './util.js';
+import { titleCase, objValueMap, addDaysToDate, getRepoIssuesByTitle,  parseTemplateFile as parseTemplate, Template, TemplateDefaults } from './util.js';
 
 export const run = async () => {
 
     const templatePath = core.getInput('template-path');
     const followSymbolicLinks = core.getBooleanInput('follow-symbolic-links');
     const githubToken = core.getInput('github-token') || process.env.GITHUB_TOKEN || '';
-
-    const repoOwner = core.getInput('repo-owner') || github.context.repo.owner;
-    const repoName = core.getInput('repo-name') || github.context.repo.repo;
-
     const projectGithubToken = core.getInput('project-github-token') || githubToken;
-    const projectOwnerDefault = core.getInput('project-owner') || github.context.repo.owner;
-    const projectNumberDefault = core.getInput('project-number');
 
-    const templateDefaults = {
-        repoOwner,
-        repoName,
-        projectNumber: projectNumberDefault,
-        projectOwner: projectOwnerDefault 
+    const templateDefaults: TemplateDefaults = {
+        repoOwner: core.getInput('repo-owner') || github.context.repo.owner,
+        repoName: core.getInput('repo-name') || github.context.repo.repo,
+        group: parseInt(core.getInput('group') || '0'),
+        labels: core.getInput('labels') ? core.getInput('labels').split(',').map(label => label.trim()) : [],
+        assignees: core.getInput('assignees') ? core.getInput('assignees').split(',').map(assignee => assignee.trim()) : [],
+        milestone: core.getInput('milestone') ? parseInt(core.getInput('milestone')) : undefined,
+        projectOwner: core.getInput('project-owner') || github.context.repo.owner,
+        projectNumber: core.getInput('project-number'),
+        projectFields: JSON.parse(core.getInput('project-fields') || '{}')
     };
     
     const octokit = github.getOctokit(githubToken);
@@ -67,8 +66,12 @@ export const run = async () => {
         const existingIssuesByTitle = await getRepoIssuesByTitle({ octokit, owner: repoOwner, repo: repoName, state: 'all' });
         
         const sortedTemplates = templates.sort((t1, t2) => t1.group - t2.group);
-        const lowestOpenGroup = sortedTemplates.find(template => existingIssuesByTitle.get(template.title)?.state === 'open')?.group ?? 0;
-        const templatesToProcess = sortedTemplates.filter(template => template.group <= lowestOpenGroup);
+        
+        const lowestMissingOrOpenGroup = sortedTemplates.find(template => existingIssuesByTitle.get(template.title)?.state !== 'closed')?.group ?? 0;
+        const highestExistingGroup = sortedTemplates.reverse().find(template => existingIssuesByTitle.has(template.title))?.group ?? 0;
+        const groupMin = Math.max(lowestMissingOrOpenGroup, highestExistingGroup);
+
+        const templatesToProcess = sortedTemplates.filter(template => template.group <= groupMin && !existingIssuesByTitle.has(template.title));
 
         // might need to break this up into batches to avoid rate-limiting
         await Promise.all(

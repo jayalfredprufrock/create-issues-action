@@ -68,7 +68,7 @@ export const getRepoIssuesByTitle = async (options: { octokit: ReturnType<typeof
 
 const frontmatterRegex = /^\s*-{3,}\s*$/m;
 
-export type TemplateDefaults = Pick<Issue, 'repoOwner' | 'repoName' | 'projectNumber' | 'projectOwner'>;
+export type TemplateDefaults = Omit<Issue, 'body' | 'state' | 'title'>;
 
 export const parseTemplateFile = async (templateFile: string, defaults: TemplateDefaults) => {
     const templateData = await fs.readFile(templateFile, { encoding: 'utf-8'});
@@ -82,10 +82,11 @@ export const parseTemplateFile = async (templateFile: string, defaults: Template
         ...defaults,
         templateName,
         title: titleCase(templateName),
-        ...issueFrontmatter,
-        labels: [],
-        assignees: [],
         group: 0,
+        ...issueFrontmatter,
+        labels: [...defaults.labels, ...(issueFrontmatter.labels ?? [])],
+        assignees: [...defaults.assignees, ...(issueFrontmatter.assignees ?? [])],
+        projectFields: { ...defaults.projectFields, ...issueFrontmatter.projectFields },
         body
     }
 };
