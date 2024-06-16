@@ -126,8 +126,13 @@ Call client to discuss design direction.
 | :---: | :------: | :-----: | ----------- |
 | `template-path` | false | .github/issues/**/*.md | Path or glob expression to templates. File names should be unique across directories. |
 | `follow-symbolic-links` | false | true | Indicates whether to follow symbolic links when globbing templates. |
-| `owner` | false |  | The owner of the repo to create issues in if different than the context repo owner. Can be overridden in frontmatter with `owner` |
-| `repo` | false |  | The the repo name to create issues in if different than the context repo. Can be overridden in frontmatter with `repo` |
+| `repo-owner` | false |  | The owner of the repo to create issues in if different than the context repo owner. Can be overridden in frontmatter with `repoOwner` |
+| `repo-name` | false |  | The the repo name to create issues in if different than the context repo. Can be overridden in frontmatter with `repoName` |
+| `group` | false |  | When set, issue will not be created until all issues with a smaller group number have been closed out. Can be overridden in frontmatter with `group` |
+| `labels` | false |  | Comma separated list of labels to add to created issues. Will be merged with any labels specified in frontmatter with `labels`. |
+| `assignees` | false |  | Comma separated list of assignees to add to created issues. Will be merged with any assignees specified in frontmatter with `assignees`. |
+| `project-fields` | false |  | Stringified JSON object of fields/values to add to project items. Will be merged with any fields specified in frontmatter with `projectFields`. |
+| `milestone` | false |  | Milestone number to associate with created issues. Can be overridden in frontmatter with `milestone`. |
 | `github-token` | false | ${{ github.token }} | GitHub token or PAT with permissions to create issues and projects in the specified repos. |
 | `project-owner` | false |  | The owner of the project if different than the context repo owner. Can be overridden in frontmatter with `projectOwner` |
 | `project-number` | false |  | The number of the project (found in the url) if the issue should be added to the project. Can be overridden in frontmatter with `projectNumber` |
@@ -140,6 +145,6 @@ Call client to discuss design direction.
 
 | Name  | Description |
 | :---: | ----------- |
-| `issues` | Map of template names (excluding file extension) containing issue/project info. Use fromJSON to parse output string.<br><br>e.g. `echo ${{ fromJSON(steps.create-issues.outputs.issues)[0].issue-node-id }}`<br><br>Available fields: `issue-url`, `issue-node-id`, `issue-number`, `issue-owner`, `issue-repo`, `project-item-id`, `project-owner`, `project-number` |
+| `issues` | Map of template names (excluding file extension) containing issue/project info. Use fromJSON to parse output string.<br><br>e.g. fromJSON(steps.create-issues.outputs.issues)['template-name'].issue-node-id<br><br>Available fields: `issue-url`, `issue-node-id`, `issue-number`, `issue-repo`, `issue-repo-owner`, `issue-repo-name`, `project-item-id`, `project-owner`, `project-number` |
 
 <!--(outputs-end)-->
