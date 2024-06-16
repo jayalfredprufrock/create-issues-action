@@ -1,5 +1,5 @@
 name: Create Issues
-description: Creates new issues from a glob of markdown templates with frontmatter, optionally adding them to projects. Supports groups, which allows creating sets of issues only after previous sets have been closed out.
+description: Creates new issues from a glob of markdown templates with frontmatter, optionally adding them to projects.
 author: '@jayalfredprufrock'
 
 branding:
